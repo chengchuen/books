@@ -24,7 +24,7 @@ MongoDB 是通用、基于文档的分布式数据库。支持完整的 ACID 事
 
 ![](images/mongdb实例结构图.png)
 
-## MongoDB CRUD操作
+## CRUD操作
 
 使用`mongosh`命令即可进入Cli工具，如果是有密码的，可以使用如下命令:
 
