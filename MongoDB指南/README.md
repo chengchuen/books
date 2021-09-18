@@ -95,7 +95,114 @@ truman_test> db.all_raw_data.find({$or:[{age:{$gt:21}},{name:'truman'}]}).pretty
 
 MongoDB默认的BSON最大支持16M,对于超过16M的场景，可以考虑使用MongoDB GridFS。
 
-## Spring MongoDB使用
+## Spring Data MongoDB使用
+
+推荐两个官网文档：[Accessing Data with MongoDB](https://spring.io/guides/gs/accessing-data-mongodb/) 、[Spring Data MongoDB](https://docs.spring.io/spring-data/mongodb/docs/3.2.5/reference/html/#introduction)
+
+首先在项目中引入依赖：
+
+```
+<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+</dependency>
+```
+
+### 配置参数与定义实体
+
+首先在配置文件增加mongo配置信息
+
+```
+spring.data.mongodb.uri=mongodb://localhost:27017/truman_test?retryWrites=false
+```
+
+然后新增实体
+
+```
+@Document("all_raw_data")
+public class RawData {
+    @Id
+    private String id;
+    private String name;
+    private int age;
+    /**
+     * wait,success,fail,canceled
+     */
+    private String status;
+    private Date inTime;
+   // 省略set与get
+}
+```
+
+### 编写Repository
+
+定义`RawDataRepository`继承`MongoRepository`，这样就可以不用写任何代码，实现数据的增删改查，基本用法和Spring JPA类似。
+
+```
+public interface RawDataRepository extends MongoRepository<NotificationRawData, String> {
+    /**
+     * 根据状态分页查询数据
+     *
+     * @param status
+     * @param pageable
+     * @return
+     */
+    public Page<RawData> findAllByStatusEquals(String status, Pageable pageable);
+}
+```
+
+#### 公共CRUD
+
+```
+    <S extends T> S save(S var1);
+
+    <S extends T> Iterable<S> saveAll(Iterable<S> var1);
+
+    Optional<T> findById(ID var1);
+
+    boolean existsById(ID var1);
+
+    Iterable<T> findAll();
+
+    Iterable<T> findAllById(Iterable<ID> var1);
+
+    long count();
+
+    void deleteById(ID var1);
+
+    void delete(T var1);
+
+    void deleteAll(Iterable<? extends T> var1);
+
+    void deleteAll();
+```
+
+#### 自定义查询
+
+```
+//根据状态统计数量
+RawData rawData = new RawData();
+rawData.setStatus("wait");
+mongoDbRepository.count(Example.of(rawData));
+// 在Repository自定义查询，通过固定语法例如findAllByXXXOrder....
+public Page<RawData> findAllByStatusEquals(String status, Pageable pageable);
+```
+
+
+
+#### 分页查询
+
+```
+// 从下标0开始读取，读取1条记录
+Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Order.asc(Constant.MessageHeaderConstant.IN_TIME)));
+Page<NotificationRawData> page = mongoDBRepository.findAllByStatusEquals("wait", pageable);
+// 根据数据执行相应的业务逻辑
+execute(page.getContent());
+while (page.hasNext()) {
+      page = mongoDBRepository.findAllByStatusEquals("wait", page.nextPageable());
+      execute(page.getContent());
+}
+```
 
 ## 参考
 
