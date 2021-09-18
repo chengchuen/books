@@ -1,0 +1,105 @@
+# MongoDB指南
+
+MongoDB 是通用、基于文档的分布式数据库。支持完整的 ACID 事务，具有强大的查询语言等。属于NoSQL数据库。
+
+## 环境搭建
+
+```
+ docker run -d --net=host --name mongo mongo:5.0.2-focal
+```
+
+这样就可以在本地启动一个MongoDB服务，默认开启mongos端口是`27017`。
+
+## 基本概念
+
+| SQL术语/概念 | MongoDB术语/概念 | 解释/说明                           |
+| :----------- | :--------------- | :---------------------------------- |
+| database     | database         | 数据库                              |
+| table        | collection       | 数据库表/集合                       |
+| row          | document         | 数据记录行/文档                     |
+| column       | field            | 数据字段/域                         |
+| index        | index            | 索引                                |
+| table joins  |                  | 表连接,MongoDB不支持                |
+| primary key  | primary key      | 主键,MongoDB自动将_id字段设置为主键 |
+
+![](images/mongdb实例结构图.png)
+
+## MongoDB CRUD操作
+
+使用`mongosh`命令即可进入Cli工具，如果是有密码的，可以使用如下命令:
+
+```
+mongosh mongodb://root:root@localhost:27017/truman_test?retryWrites=false
+```
+
+### 数据库DDL
+
+```
+// 创建/切换到指定数据库
+>use truman_test
+// 查询所有的数据库
+truman_test> show dbs
+// 删除数据
+truman_test> use sns
+truman_test> db.dropDatabase()
+```
+
+### 集合DDL
+
+```
+// 创建collection
+truman_test> db.createCollection("all_raw_data")
+// 查询所有的collection
+truman_test> show collections
+// 创建索引
+truman_test> db.all_raw_data.createIndex({"status": 1})
+// 设置ttl为30d
+truman_test> db.all_raw_data.createIndex( { "inTime": 1 }, { expireAfterSeconds: 43200 } )
+// 删除集合
+truman_test> db.all_raw_data.drop()
+```
+
+### 文档DDL
+
+```
+// 插入文档
+truman_test>  db.all_raw_data.insertOne({name:'truman',age:18,status:'success'})
+// 修改文档
+truman_test> db.all_raw_data.updateOne({name:'truman'},{$set:{age:19}})
+// 删除文档
+truman_test> db.all_raw_data.deleteOne( { status: "success" } )
+```
+
+### 查询
+
+```
+truman_test> db.all_raw_data.find().pretty()
+// 查询age大于21，或者name=truman
+truman_test> db.all_raw_data.find({$or:[{age:{$gt:21}},{name:'truman'}]}).pretty()
+
+```
+
+查询语法：
+
+![](images/mongodb查询语法.png)
+
+[更多文档详见官方文档](https://docs.mongodb.com/manual/tutorial/query-documents/)
+
+## 适用场景
+
+
+
+## 问题与经验
+
+### document能存储最大数据？
+
+MongoDB默认的BSON最大支持16M,对于超过16M的场景，可以考虑使用MongoDB GridFS。
+
+## Spring MongoDB使用
+
+## 参考
+
+1. [MongoDB 教程](https://www.runoob.com/mongodb/mongodb-tutorial.html)
+2. [MongoDB 基础浅谈](https://mp.weixin.qq.com/s/CWjPigYjnREPXTiIRXI6MA)
+3. [The MongoDB 5.0 Manual](https://docs.mongodb.com/manual/)
+
