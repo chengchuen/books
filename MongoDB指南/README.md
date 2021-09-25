@@ -149,23 +149,66 @@ truman_test> db.all_raw_data.find({$or:[{age:{$gt:21}},{name:'truman'}]}).pretty
 
 ## 索引
 
-## 高可用架构
+## 架构设计
+
+在MongoDB中为了服务的高可用，增加了复制集；高性能，增加了分片集。倒不是一个MongoDB数据库必须有这两个，而是根据需要来设计自己的MongoDB部署架构。了解这个架构设计，对我们代码实现和自己系统架构设计都很有帮助。
 
 ### 复制集
 
+复制集又称为副本集（Replica Set），是一组维护相同数据集合的 mongod 进程。复制集包含多个数据节点和一个可选的仲裁节点（arbiter）。在数据节点中，有且仅有一个成员为主节点（primary），其他节点为从节点（secondary）。
+
+![](images/复制集架构.png)
+
+#### 复制集节点类型
+
+- **主节点（Primary)**: 接受所有的写操作
+- **从节点(Secondary)**:从主节点复制数据到自己节点上，可以配置投票权，是否对客户端可见，选主优先级等
+- **仲裁节点(Arbiter)**:该节点不保存数据
+
+#### 复制集作用
+
+- 作为主节点备份，以实现 failover。
+- 将数据从一个数据中心复制到另一个数据中心，减少另一个数据中心的读延迟。
+- 实现读写分离。
+- 实现容灾，可以在数据中心故障时快速切换到同城或异地的数据中心。
+
 ### 分片集
+
+MongoDB是通过分片实现水平扩展。
+
+![分片集架构](images\分片集架构.png)
+
+#### 分片集组件
+
+- shard:每个分片上可以保存一个集合的子集，所有分片上的子集的数据互不相交，构成完整的集合。每个分片可以被部署为复制集架构。最大为 1024 个分片
+- mongos:查询路由器
+- config server:存储分片集的相关配置信息
+
+#### 分片操作
+
+首先先启动`shard`,`mongos`,`config server`.
+
+1. 加入分片 `db.runCommand({ addshard:"localhost:27020" })`
+
+2. 设置分片集存储数据库 `db.runCommand({ enablesharding:"test" })`
+
+3. 增加集合分片键 `db.runCommand({ shardcollection: "test.log", key: { id:1,time:1}})`
+
+   其中增加分片集语法为`sh.shardCollection(<namespace>, <key>) `
+
+   namespace "<database>.<collection>"
+
+   key `<shard key field1>: <1|"hashed">`
+
+   1代表的按范围划分
+
+   hashed代表使用hash划分
 
 ### 集群模式
 
 - 使用复制集实现，**两地三中心**，1个Primary,4个Secondary
 - 使用分片集，全球多写集群（Global Cluster）两个location各两个Primary,两个Secondary
 - 独立集群模式，使用第三方工具同步数据（Tapdata/Mongoshake）
-
-
-
-
-
-
 
 ## 问题与经验
 
