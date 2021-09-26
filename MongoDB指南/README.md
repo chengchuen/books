@@ -14,7 +14,7 @@ MongoDB 是通用、基于文档的分布式数据库。支持完整的 ACID 事
 | table joins  |                  | 表连接,MongoDB不支持                |
 | primary key  | primary key      | 主键,MongoDB自动将_id字段设置为主键 |
 
-![](images/mongdb实例结构图.png)
+![](http://static.trumandu.top/mongdb%E5%AE%9E%E4%BE%8B%E7%BB%93%E6%9E%84%E5%9B%BE.png)
 
 ## 适用场景与选型
 
@@ -139,7 +139,7 @@ truman_test> db.all_raw_data.find({$or:[{age:{$gt:21}},{name:'truman'}]}).pretty
 
 查询语法：
 
-![](images/mongodb查询语法.png)
+![](http://static.trumandu.top/mongodb%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95.png)
 
 [更多文档详见官方文档](https://docs.mongodb.com/manual/tutorial/query-documents/)
 
@@ -252,8 +252,6 @@ while (page.hasNext()) {
 }
 ```
 
-## 
-
 ## 聚合查询
 
 MongoDB 提供了三种执行聚合的方法：聚合管道，map-reduce 和单一目的聚合方法（如 count、distinct 等方法）。
@@ -309,7 +307,7 @@ MongoDB具有丰富的索引方式，有10种以上，如果没有索引，读�
 
 复制集又称为副本集（Replica Set），是一组维护相同数据集合的 mongod 进程。复制集包含多个数据节点和一个可选的仲裁节点（arbiter）。在数据节点中，有且仅有一个成员为主节点（primary），其他节点为从节点（secondary）。
 
-![](images/复制集架构.png)
+![](http://static.trumandu.top/%E5%A4%8D%E5%88%B6%E9%9B%86%E6%9E%B6%E6%9E%84.png)
 
 #### 复制集节点类型
 
@@ -328,7 +326,7 @@ MongoDB具有丰富的索引方式，有10种以上，如果没有索引，读�
 
 MongoDB是通过分片实现水平扩展。
 
-![分片集架构](images/分片集架构.png)
+![分片集架构](http://static.trumandu.top/%E5%88%86%E7%89%87%E9%9B%86%E6%9E%B6%E6%9E%84.png)
 
 #### 分片集组件
 
